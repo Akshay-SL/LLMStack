@@ -7,7 +7,7 @@ from collections import defaultdict
 
 import docker
 import toml
-
+import argparse
 
 def run_django_command(command: list[str] = ['manage.py', 'runserver']):
     """Run a Django command"""
@@ -73,6 +73,21 @@ def prepare_env():
     config = {}
     with open(config_path) as f:
         config = toml.load(f)
+
+        # Load the arguments from CLI
+        parser = argparse.ArgumentParser(description='LLMStack CLI')
+        parser.add_argument('--host', help='host for llmstack-runner')
+        parser.add_argument('--port', help='port for llmstack-runner')
+
+        args = parser.parse_args()
+
+        # Override the host and port if specified via Commandline
+        if args.host is not None:
+            config['llmstack-runner']['host'] = args.host
+
+        if args.port is not None:
+            config['llmstack-runner']['port'] = args.port
+
 
         if 'generatedfiles_root' not in config:
             config['generatedfiles_root'] = './generatedfiles'
